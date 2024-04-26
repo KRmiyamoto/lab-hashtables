@@ -9,33 +9,30 @@ import java.util.function.BiConsumer;
  * @author Samuel A. Rebelsky
  * @author Your Name Here
  */
-public class ProbedHashTable<K,V> implements HashTable<K,V> {
+public class ProbedHashTable<K, V> implements HashTable<K, V> {
 
   // +-------+-----------------------------------------------------------
   // | Notes |
   // +-------+
 
   /*
-   * Our hash table is stored as an array of key/value pairs. Because of the
-   * design of Java arrays, we declare that as type Object[] and cast whenever
-   * we remove an element. (SamR needs to find a better way to deal with this
-   * issue; using ArrayLists doesn't seem like the best idea.)
+   * Our hash table is stored as an array of key/value pairs. Because of the design of Java arrays,
+   * we declare that as type Object[] and cast whenever we remove an element. (SamR needs to find a
+   * better way to deal with this issue; using ArrayLists doesn't seem like the best idea.)
    * 
-   * We use linear probing to handle collisions. (Well, we *will* use linear
-   * probing, once the table is finished.)
+   * We use linear probing to handle collisions. (Well, we *will* use linear probing, once the table
+   * is finished.)
    * 
-   * We expand the hash table when the load factor is greater than LOAD_FACTOR
-   * (see constants below).
+   * We expand the hash table when the load factor is greater than LOAD_FACTOR (see constants
+   * below).
    * 
-   * Since some combinations of data and hash function may lead to a situation
-   * in which we get a surprising relationship between values (e.g., all the
-   * hash values are 0 mod 32), when expanding the hash table, we incorporate a
-   * random number. (Is this likely to make a big difference? Who knows. But
-   * it's likely to be fun.)
+   * Since some combinations of data and hash function may lead to a situation in which we get a
+   * surprising relationship between values (e.g., all the hash values are 0 mod 32), when expanding
+   * the hash table, we incorporate a random number. (Is this likely to make a big difference? Who
+   * knows. But it's likely to be fun.)
    * 
-   * For experimentation and such, we allow the client to supply a Reporter that
-   * is used to report behind-the-scenes work, such as calls to expand the
-   * table.
+   * For experimentation and such, we allow the client to supply a Reporter that is used to report
+   * behind-the-scenes work, such as calls to expand the table.
    * 
    * Bugs to squash.
    * 
@@ -66,8 +63,8 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   static final double LOAD_FACTOR = 0.5;
 
   /**
-   * The offset to use in linear probes. (We choose a prime because that helps
-   * ensure that we cover all of the spaces.)
+   * The offset to use in linear probes. (We choose a prime because that helps ensure that we cover
+   * all of the spaces.)
    */
   static final double PROBE_OFFSET = 17;
 
@@ -76,14 +73,14 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   // +--------+
 
   /**
-   * The number of values currently stored in the hash table. We use this to
-   * determine when to expand the hash table.
+   * The number of values currently stored in the hash table. We use this to determine when to
+   * expand the hash table.
    */
   int size = 0;
 
   /**
-   * The array that we use to store the key/value pairs. (We use an array,
-   * rather than an ArrayList, because we want to control expansion.)
+   * The array that we use to store the key/value pairs. (We use an array, rather than an ArrayList,
+   * because we want to control expansion.)
    */
   Object[] pairs;
 
@@ -98,8 +95,7 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   boolean REPORT_BASIC_CALLS = false;
 
   /**
-   * Our helpful random number generator, used primarily when expanding the size
-   * of the table..
+   * Our helpful random number generator, used primarily when expanding the size of the table..
    */
   Random rand;
 
@@ -146,7 +142,7 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
    * Apply a function to each key/value pair.
    */
   public void forEach(BiConsumer<? super K, ? super V> action) {
-    for (Pair<K,V> pair : this) {
+    for (Pair<K, V> pair : this) {
       action.accept(pair.key(), pair.value());
     } // for
   } // forEach(BiConsumer)
@@ -158,7 +154,7 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   public V get(K key) {
     int index = find(key);
     @SuppressWarnings("unchecked")
-    Pair<K,V> pair = (Pair<K,V>) pairs[index];
+    Pair<K, V> pair = (Pair<K, V>) pairs[index];
     if (pair == null) {
       if (REPORT_BASIC_CALLS && (reporter != null)) {
         reporter.report("get(" + key + ") failed");
@@ -200,16 +196,19 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
     } // if there are too many entries
     // Find out where the key belongs and put the pair there.
     int index = find(key);
+    if (!((Pair<K, V>) this.pairs[index]).key().equals(key)) {
+      // Note that we've incremented the size.
+      ++this.size;
+    }
     if (this.pairs[index] != null) {
-      result = ((Pair<K,V>) this.pairs[index]).value();
+      result = ((Pair<K, V>) this.pairs[index]).value();
     } // if
-    this.pairs[index] = new Pair<K,V>(key, value);
+    this.pairs[index] = new Pair<K, V>(key, value);
     // Report activity, if appropriate
     if (REPORT_BASIC_CALLS && (reporter != null)) {
       reporter.report("pairs[" + index + "] = " + key + ":" + value);
     } // if reporter != null
-    // Note that we've incremented the size.
-    ++this.size;
+
     // And we're done
     return result;
   } // set(K,V)
@@ -236,14 +235,14 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   /**
    * Iterate the key/value pairs in some order.
    */
-  public Iterator<Pair<K,V>> iterator() {
-    return new Iterator<Pair<K,V>>() {
+  public Iterator<Pair<K, V>> iterator() {
+    return new Iterator<Pair<K, V>>() {
       public boolean hasNext() {
         // STUB
         return false;
       } // hasNext()
 
-      public Pair<K,V> next() {
+      public Pair<K, V> next() {
         // STUB
         return null;
       } // next()
@@ -272,10 +271,9 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
     int printed = 0; // Number of elements printed
     for (int i = 0; i < this.pairs.length; i++) {
       @SuppressWarnings("unchecked")
-      Pair<K,V> pair = (Pair<K,V>) this.pairs[i];
+      Pair<K, V> pair = (Pair<K, V>) this.pairs[i];
       if (pair != null) {
-        pen.print(i + ":" + pair.key() + "(" + pair.key().hashCode() + "):"
-            + pair.value());
+        pen.print(i + ":" + pair.key() + "(" + pair.key().hashCode() + "):" + pair.value());
         if (++printed < this.size) {
           pen.print(", ");
         } // if
@@ -317,11 +315,20 @@ public class ProbedHashTable<K,V> implements HashTable<K,V> {
   } // expand()
 
   /**
-   * Find the index of the entry with a given key. If there is no such entry,
-   * return the index of an entry we can use to store that key.
+   * Find the index of the entry with a given key. If there is no such entry, return the index of an
+   * entry we can use to store that key.
    */
+  @SuppressWarnings("unchecked")
   int find(K key) {
-    return Math.abs(key.hashCode()) % this.pairs.length;
+    int i = Math.abs(key.hashCode()) % this.pairs.length;
+    while (this.pairs[i] != null) {
+      if (((Pair<K, V>) this.pairs[i]).key().equals(key)) {
+        return i;
+      }
+      i += PROBE_OFFSET;
+      i = i % this.pairs.length;
+    } // while
+    return i;
   } // find(K)
 
 } // class ProbedHashTable<K,V>

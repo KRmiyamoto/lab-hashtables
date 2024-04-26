@@ -162,11 +162,16 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
       } // if reporter != null
       throw new IndexOutOfBoundsException("Invalid key: " + key);
     } else {
-      Pair<K,V> pair = alist.get(0);
-      if (REPORT_BASIC_CALLS && (reporter != null)) {
-        reporter.report("get(" + key + ") => " + pair.value());
-      } // if reporter != null
-      return pair.value();
+      for (int i = 0; i < alist.size(); i++) { 
+        if (key.equals(alist.get(i).key())) { 
+          Pair<K,V> pair = alist.get(i);
+          if (REPORT_BASIC_CALLS && (reporter != null)) {
+            reporter.report("get(" + key + ") => " + pair.value());
+          } // if reporter != null
+          return pair.value();
+        } // if
+      } // for
+        throw new IndexOutOfBoundsException("Invalid key: " + key);
     } // get
   } // get(K)
 
@@ -204,7 +209,18 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     if (alist == null) {
       alist = new ArrayList<Pair<K,V>>();
       this.buckets[index] = alist;
-    }
+    } 
+
+    for (int i = 0; i < alist.size(); i++) { 
+      if (key.equals(alist.get(i).key())) { 
+        if (REPORT_BASIC_CALLS && (reporter != null)) {
+          reporter.report("set(" + key + ") => " + value);
+        } // if reporter != null
+        alist.set(i, new Pair<K, V> (key, value));
+        return value;
+      } // if
+    } // for
+
     alist.add(new Pair<K,V>(key, value));
     ++this.size;
 
@@ -302,13 +318,24 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
   /**
    * Expand the size of the table.
    */
+  @SuppressWarnings("unchecked")
   void expand() {
     // Figure out the size of the new table
     int newSize = 2 * this.buckets.length + rand.nextInt(10);
     if (REPORT_BASIC_CALLS && (reporter != null)) {
       reporter.report("Expanding to " + newSize + " elements.");
     } // if reporter != null
-    // STUB
+    // Remember the old table
+    Object[] oldBuckets = this.buckets;
+    // Create a new table of that size.
+    this.buckets = new Object[newSize];
+    // Move all buckets from the old table to their appropriate
+    // location in the new table.
+    for (int i = 0; i < oldBuckets.length; i++) {
+      for (int j = 0; j < ((ArrayList<Pair<K,V>>) oldBuckets[i]).size(); j++) {
+        set(((ArrayList<Pair<K,V>>)oldBuckets[i]).get(j).key(), ((ArrayList<Pair<K,V>>)oldBuckets[i]).get(j).value());
+      }
+    } // for
   } // expand()
 
   /**
