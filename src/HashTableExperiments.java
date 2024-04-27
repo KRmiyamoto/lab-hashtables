@@ -114,8 +114,68 @@ public class HashTableExperiments {
   /**
    * Explore what happens when we remove elements.
    */
-  public static void removeExpt(PrintWriter pen, HashTable<String, String> htab) {
-    // STUB
+  public static void multipleRemoveExpt(PrintWriter pen, HashTable<String, String> htab) {
+    // Populate the table
+    htab.clear();
+    multipleSetExpt(pen, htab);
+
+    // Remove words one by one.
+    for (int i = 0; i < words.length; i++) {
+      htab.remove(words[i]);
+      // Make sure that it's removed
+      boolean removed = false;
+      try {
+        htab.get(words[i]);
+      } catch (Exception e) {
+        removed = true;
+      } // try/catch
+      if (!removed) {
+        pen.println("Failed to remove " + words[i]);
+        htab.dump(pen);
+        return;
+      } // if
+
+      // Make sure that the remaining elements are still there.
+      for (int j = i + 1; j < words.length; j++) {
+        try {
+          String str = htab.get(words[j]);
+          if (!str.equals(words[j])) {
+            pen.println("After removing " + words[i] + ", " + words[j]
+                + " now maps to " + str);
+            htab.dump(pen);
+            return;
+          } // if
+        } catch (Exception e) {
+          pen.println("After removing " + words[i] + ", " + words[j]
+              + " is no longer present");
+          htab.dump(pen);
+          return;
+        } // try catch
+      } // for j
+    } // for i
   } // removeExpt(PrintWriter, HashTable)
+
+  public static void removeExpt(PrintWriter pen, HashTable<String, String> htab) {
+    // Populate the table
+    htab.clear();
+    multipleSetExpt(pen, htab);
+    htab.dump(pen);
+    htab.remove("antelope");
+    htab.remove("fox");
+    htab.remove("tiger");
+    htab.dump(pen);
+    try {
+      htab.get("antelope");
+      htab.get("fox");
+      htab.get("tiger");
+    } catch (Exception e) {
+      pen.println("Works as expected.");
+    }
+    try {
+      htab.remove("antelope");
+    } catch (Exception e) {
+      pen.println("All good.");
+    }
+  } // removeExpt
 
 } // class HashTableExpt

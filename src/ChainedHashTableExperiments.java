@@ -33,8 +33,9 @@ public class ChainedHashTableExperiments {
     // HashTableExperiments.matchingKeysExpt(pen, htab);
     // HashTableExperiments.repeatedSetExpt(pen, htab);
     // HashTableExperiments.matchingSetExpt(pen, htab);
-     HashTableExperiments.multipleSetExpt(pen, htab);
-    // HashTableExperiments.removeExpt(pen, htab);
+    // HashTableExperiments.multipleSetExpt(pen, htab);
+    // HashTableExperiments.multipleRemoveExpt(pen, htab);
+       HashTableExperiments.removeExpt(pen, htab);
   } // main(String[])
 
 } // class ChainedHashTableExperiments

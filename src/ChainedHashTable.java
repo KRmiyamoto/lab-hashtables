@@ -187,8 +187,18 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
    */
   @Override
   public V remove(K key) {
-    // STUB
-    return null;
+    int index = find(key);
+    @SuppressWarnings("unchecked")
+    ArrayList<Pair<K,V>> alist = (ArrayList<Pair<K,V>>) this.buckets[index];
+    for (int i = 0; i < alist.size(); i++) {
+      Pair<K,V> pair = alist.get(i);
+      if (key.equals(pair.key())) {
+        V ret = pair.value();
+        alist.remove(i);
+        return ret;
+      } // if
+    } // for
+    throw new IndexOutOfBoundsException("Invalid key: " + key);
   } // remove(K)
 
   /**
@@ -332,9 +342,12 @@ public class ChainedHashTable<K,V> implements HashTable<K,V> {
     // Move all buckets from the old table to their appropriate
     // location in the new table.
     for (int i = 0; i < oldBuckets.length; i++) {
-      for (int j = 0; j < ((ArrayList<Pair<K,V>>) oldBuckets[i]).size(); j++) {
-        set(((ArrayList<Pair<K,V>>)oldBuckets[i]).get(j).key(), ((ArrayList<Pair<K,V>>)oldBuckets[i]).get(j).value());
-      }
+      if (oldBuckets[i] != null) {
+        ArrayList<Pair<K,V>> alist = (ArrayList<Pair<K,V>>) oldBuckets[i];
+        for (Pair<K,V> pair : alist) {
+          this.set(pair.key(), pair.value());
+        } // for
+      } //  if
     } // for
   } // expand()
 
